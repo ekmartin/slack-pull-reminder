@@ -30,19 +30,21 @@ def format_pull_requests(pull_requests, owner, repository):
             owner, repository, pull.html_url, pull.title, creator)
         lines.append(line)
 
-    return '\n'.join(lines)
+    return lines
 
 
 def check_organization(organization_name):
     client = login(token=GITHUB_API_TOKEN)
     organization = client.organization(organization_name)
     text = INITIAL_MESSAGE
+    lines = []
 
     for repository in organization.repositories():
         unchecked_pulls = check_repository(repository)
-        text += format_pull_requests(unchecked_pulls, organization_name,
-                                     repository.name)
+        lines += format_pull_requests(unchecked_pulls, organization_name,
+                                      repository.name)
 
+    text += '\n'.join(lines)
     return text
 
 
