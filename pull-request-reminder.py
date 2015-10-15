@@ -6,7 +6,7 @@ POST_URL = 'https://slack.com/api/chat.postMessage'
 
 SLACK_API_TOKEN = os.environ['SLACK_API_TOKEN']
 GITHUB_API_TOKEN = os.environ['GITHUB_API_TOKEN']
-
+ORGANIZATION = os.environ['ORGANIZATION']
 SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', '#general')
 
 INITIAL_MESSAGE = """\
@@ -62,7 +62,7 @@ def send_to_slack(text):
 
 
 def main():
-    text = check_organization('WhaleMonitoring')
+    text = check_organization(ORGANIZATION)
     if text:
         send_to_slack(text)
 
