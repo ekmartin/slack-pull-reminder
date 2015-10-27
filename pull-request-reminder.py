@@ -36,7 +36,6 @@ def format_pull_requests(pull_requests, owner, repository):
 def check_organization(organization_name):
     client = login(token=GITHUB_API_TOKEN)
     organization = client.organization(organization_name)
-    text = INITIAL_MESSAGE
     lines = []
 
     for repository in organization.repositories():
@@ -44,8 +43,7 @@ def check_organization(organization_name):
         lines += format_pull_requests(unchecked_pulls, organization_name,
                                       repository.name)
 
-    text += '\n'.join(lines)
-    return text
+    return lines
 
 
 def send_to_slack(text):
@@ -64,8 +62,9 @@ def send_to_slack(text):
 
 
 def main():
-    text = check_organization(ORGANIZATION)
-    if text:
+    lines = check_organization(ORGANIZATION)
+    if lines:
+        text = INITIAL_MESSAGE + '\n'.join(lines)
         send_to_slack(text)
 
 
