@@ -4,7 +4,7 @@ from github3 import login
 
 POST_URL = 'https://slack.com/api/chat.postMessage'
 
-IGNORE_WORDS = ['Depsy']
+IGNORE_WORDS = ['depsy']
 SLACK_API_TOKEN = os.environ['SLACK_API_TOKEN']
 GITHUB_API_TOKEN = os.environ['GITHUB_API_TOKEN']
 ORGANIZATION = os.environ['ORGANIZATION']
@@ -25,7 +25,7 @@ def check_repository(repository):
 def is_valid_title(title):
     lowercase_title = title.lower()
     for ignored_word in IGNORE_WORDS:
-        if ignored_word in lowercase_title:
+        if ignored_word.lower() in lowercase_title:
             return False
 
     return True
