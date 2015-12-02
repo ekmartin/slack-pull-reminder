@@ -4,6 +4,7 @@ from github3 import login
 
 POST_URL = 'https://slack.com/api/chat.postMessage'
 
+IGNORE_WORDS = ['Depsy']
 SLACK_API_TOKEN = os.environ['SLACK_API_TOKEN']
 GITHUB_API_TOKEN = os.environ['GITHUB_API_TOKEN']
 ORGANIZATION = os.environ['ORGANIZATION']
@@ -21,14 +22,21 @@ def check_repository(repository):
             if pull.state == 'open']
 
 
+def is_valid_title(title):
+    title_words = set(title.split(' '))
+    # Check if it contains any of the ignored words:
+    return not bool(set(IGNORE_WORDS).intersection(title_words))
+
+
 def format_pull_requests(pull_requests, owner, repository):
     lines = []
 
     for pull in pull_requests:
-        creator = pull.user.login
-        line = '    *[{0}/{1}]* <{2}|{3} - by {4}>'.format(
-            owner, repository, pull.html_url, pull.title, creator)
-        lines.append(line)
+        if is_valid_title(pull.title):
+            creator = pull.user.login
+            line = '    *[{0}/{1}]* <{2}|{3} - by {4}>'.format(
+                owner, repository, pull.html_url, pull.title, creator)
+            lines.append(line)
 
     return lines
 
