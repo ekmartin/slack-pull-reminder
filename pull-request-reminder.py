@@ -37,7 +37,7 @@ def format_pull_requests(pull_requests, owner, repository):
     for pull in pull_requests:
         if is_valid_title(pull.title):
             creator = pull.user.login
-            line = '    *[{0}/{1}]* <{2}|{3} - by {4}>'.format(
+            line = '*[{0}/{1}]* <{2}|{3} - by {4}>'.format(
                 owner, repository, pull.html_url, pull.title, creator)
             lines.append(line)
 
