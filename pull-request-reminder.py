@@ -23,9 +23,12 @@ def check_repository(repository):
 
 
 def is_valid_title(title):
-    title_words = set(title.split(' '))
-    # Check if it contains any of the ignored words:
-    return not bool(set(IGNORE_WORDS).intersection(title_words))
+    lowercase_title = title.lower()
+    for ignored_word in IGNORE_WORDS:
+        if ignored_word in lowercase_title:
+            return False
+
+    return True
 
 
 def format_pull_requests(pull_requests, owner, repository):
