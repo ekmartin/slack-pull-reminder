@@ -4,7 +4,7 @@ from github3 import login
 
 POST_URL = 'https://slack.com/api/chat.postMessage'
 
-IGNORE_WORDS = ['depsy']
+IGNORE_WORDS = ['doppins']
 SLACK_API_TOKEN = os.environ['SLACK_API_TOKEN']
 GITHUB_API_TOKEN = os.environ['GITHUB_API_TOKEN']
 ORGANIZATION = os.environ['ORGANIZATION']
