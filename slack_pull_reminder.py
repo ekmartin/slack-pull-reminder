@@ -83,11 +83,11 @@ def send_to_slack(text):
         raise Exception(answer['error'])
 
 
-def main():
+def cli():
     lines = fetch_organization_pulls(ORGANIZATION)
     if lines:
         text = INITIAL_MESSAGE + '\n'.join(lines)
         send_to_slack(text)
 
-
-main()
+if __name__ == '__main__':
+    cli()
