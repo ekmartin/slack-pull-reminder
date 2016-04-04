@@ -6,7 +6,8 @@ from github3 import login
 
 POST_URL = 'https://slack.com/api/chat.postMessage'
 
-IGNORE_WORDS = os.environ.get('IGNORE_WORDS', '').split(',')
+ignore = os.environ.get('IGNORE_WORDS')
+IGNORE_WORDS = ignore.split(',') if ignore else []
 SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', '#general')
 
 try:
@@ -14,8 +15,7 @@ try:
     GITHUB_API_TOKEN = os.environ['GITHUB_API_TOKEN']
     ORGANIZATION = os.environ['ORGANIZATION']
 except KeyError as error:
-    print('Please set the environment variable {0}'.format(error),
-          file=sys.stderr)
+    sys.stderr.write('Please set the environment variable {0}'.format(error))
     sys.exit(1)
 
 INITIAL_MESSAGE = """\
