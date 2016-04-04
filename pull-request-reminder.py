@@ -1,14 +1,22 @@
 import os
+import sys
+
 import requests
 from github3 import login
 
 POST_URL = 'https://slack.com/api/chat.postMessage'
 
-IGNORE_WORDS = ['depsy', 'doppins']
-SLACK_API_TOKEN = os.environ['SLACK_API_TOKEN']
-GITHUB_API_TOKEN = os.environ['GITHUB_API_TOKEN']
-ORGANIZATION = os.environ['ORGANIZATION']
+IGNORE_WORDS = os.environ.get('IGNORE_WORDS', '').split(',')
 SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', '#general')
+
+try:
+    SLACK_API_TOKEN = os.environ['SLACK_API_TOKEN']
+    GITHUB_API_TOKEN = os.environ['GITHUB_API_TOKEN']
+    ORGANIZATION = os.environ['ORGANIZATION']
+except KeyError as error:
+    print('Please set the environment variable {0}'.format(error),
+          file=sys.stderr)
+    sys.exit(1)
 
 INITIAL_MESSAGE = """\
 Hi! There's a few open pull requests you should take a \
@@ -17,7 +25,7 @@ look at:
 """
 
 
-def check_repository(repository):
+def fetch_repository_pulls(repository):
     return [pull for pull in repository.pull_requests()
             if pull.state == 'open']
 
@@ -44,13 +52,16 @@ def format_pull_requests(pull_requests, owner, repository):
     return lines
 
 
-def check_organization(organization_name):
+def fetch_organization_pulls(organization_name):
+    """
+    Returns a formatted string list of open pull request messages.
+    """
     client = login(token=GITHUB_API_TOKEN)
     organization = client.organization(organization_name)
     lines = []
 
     for repository in organization.repositories():
-        unchecked_pulls = check_repository(repository)
+        unchecked_pulls = fetch_repository_pulls(repository)
         lines += format_pull_requests(unchecked_pulls, organization_name,
                                       repository.name)
 
@@ -73,7 +84,7 @@ def send_to_slack(text):
 
 
 def main():
-    lines = check_organization(ORGANIZATION)
+    lines = fetch_organization_pulls(ORGANIZATION)
     if lines:
         text = INITIAL_MESSAGE + '\n'.join(lines)
         send_to_slack(text)
