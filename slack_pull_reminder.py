@@ -12,6 +12,9 @@ IGNORE_WORDS = [i.lower().strip() for i in ignore.split(',')] if ignore else []
 repositories = os.environ.get('REPOSITORIES')
 REPOSITORIES = [r.lower().strip() for r in repositories.split(',')] if repositories else []
 
+usernames = os.environ.get('USERNAMES')
+USERNAMES = [u.lower().strip() for u in usernames.split(',')] if usernames else []
+
 SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', '#general')
 
 try:
@@ -30,8 +33,13 @@ look at:
 
 
 def fetch_repository_pulls(repository):
-    return [pull for pull in repository.pull_requests()
-            if pull.state == 'open']
+    pulls = []
+    for pull in repository.pull_requests():
+        if pull.state == 'open':
+            if USERNAMES and pull.user.name.lower() in USERNAMES:
+                # if USERNAMES is set only add if user is in the list of usernames
+                pulls.append(pull)
+    return pulls
 
 
 def is_valid_title(title):
