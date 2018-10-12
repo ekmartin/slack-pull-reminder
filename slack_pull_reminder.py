@@ -36,7 +36,7 @@ def fetch_repository_pulls(repository):
     pulls = []
     for pull in repository.pull_requests():
         if pull.state == 'open':
-            if USERNAMES and pull.user.name.lower() in USERNAMES:
+            if USERNAMES and pull.user.login.lower() in USERNAMES:
                 # if USERNAMES is set only add if user is in the list of usernames
                 pulls.append(pull)
     return pulls
