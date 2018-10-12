@@ -31,8 +31,11 @@ Optional
 
 -  ``IGNORE_WORDS``: A comma-separated list of words that will cause a
    pull request to be ignored.
+   
 -  ``REPOS``: A comma-separated list of repository names to check. 
-If specified, other repositories in this orgainization will be ignored.
+   If specified, other repositories in this orgainization will be 
+   ignored. If not specified, all repositories will be checked.
+
 -  ``SLACK_CHANNEL``: The Slack channel you want the reminders to be
    posted in, defaults to #general.
 
