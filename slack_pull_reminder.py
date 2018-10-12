@@ -7,10 +7,10 @@ from github3 import login
 POST_URL = 'https://slack.com/api/chat.postMessage'
 
 ignore = os.environ.get('IGNORE_WORDS')
-IGNORE_WORDS = ignore.split(',') if ignore else []
+IGNORE_WORDS = [i.lower().strip() for i in ignore.split(',')] if ignore else []
 
 repos = os.environ.get('REPOS')
-REPOS = repos.split(',') if repos else []
+REPOS = [r.lower().strip() for r in repos.split(',')] if repos else []
 
 SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', '#general')
 
@@ -37,7 +37,7 @@ def fetch_repository_pulls(repository):
 def is_valid_title(title):
     lowercase_title = title.lower()
     for ignored_word in IGNORE_WORDS:
-        if ignored_word.lower() in lowercase_title:
+        if ignored_word in lowercase_title:
             return False
 
     return True
