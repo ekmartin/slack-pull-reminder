@@ -9,8 +9,8 @@ POST_URL = 'https://slack.com/api/chat.postMessage'
 ignore = os.environ.get('IGNORE_WORDS')
 IGNORE_WORDS = [i.lower().strip() for i in ignore.split(',')] if ignore else []
 
-repos = os.environ.get('REPOS')
-REPOS = [r.lower().strip() for r in repos.split(',')] if repos else []
+repositories = os.environ.get('REPOSITORIES')
+REPOSITORIES = [r.lower().strip() for r in repositories.split(',')] if repositories else []
 
 SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', '#general')
 
@@ -65,8 +65,7 @@ def fetch_organization_pulls(organization_name):
     lines = []
 
     for repository in organization.repositories():
-        if REPOS and repository.name.lower() not in REPOS:
-            # if repos list is defined, skip repos not defined in filter
+        if REPOSITORIES and repository.name.lower() not in REPOSITORIES:
             continue
         unchecked_pulls = fetch_repository_pulls(repository)
         lines += format_pull_requests(unchecked_pulls, organization_name,

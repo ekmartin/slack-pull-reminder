@@ -32,7 +32,7 @@ Optional
 -  ``IGNORE_WORDS``: A comma-separated list of words that will cause a
    pull request to be ignored.
    
--  ``REPOS``: A comma-separated list of repository names to check. 
+-  ``REPOSITORIES``: A comma-separated list of repository names to check.
    If specified, other repositories in this orgainization will be 
    ignored. If not specified, all repositories will be checked.
 
