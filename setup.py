@@ -5,7 +5,7 @@ with open('README.rst', 'rb') as f:
 
 setup(
     name='slack-pull-reminder',
-    version='0.1.2',
+    version='0.1.3',
     url='http://github.com/ekmartin/slack-pull-reminder',
     author='Martin Ek',
     author_email='mail@ekmartin.com',
