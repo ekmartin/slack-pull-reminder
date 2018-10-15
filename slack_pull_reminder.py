@@ -2,7 +2,7 @@ import os
 import sys
 
 import requests
-from github3 import login
+from github3 import login, pulls, repos
 
 POST_URL = 'https://slack.com/api/chat.postMessage'
 
@@ -16,6 +16,17 @@ usernames = os.environ.get('USERNAMES')
 USERNAMES = [u.lower().strip() for u in usernames.split(',')] if usernames else []
 
 SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', '#general')
+
+SHOW_BUILD_STATUS = os.environ.get('SHOW_BUILD_STATUS', True)
+SUCCESS_EMOJI = os.environ.get('SUCCESS_EMOJI', ':white_check_mark:')
+PENDING_EMOJI = os.environ.get('PENDING_EMOJI', ':large_orange_diamond:')
+FAILURE_EMOJI = os.environ.get('FAILURE_EMOJI', ':x:')
+
+state_to_emoji = {
+    'success': SUCCESS_EMOJI,
+    'pending': PENDING_EMOJI,
+    'failure': FAILURE_EMOJI,
+}
 
 try:
     SLACK_API_TOKEN = os.environ['SLACK_API_TOKEN']
@@ -49,14 +60,30 @@ def is_valid_title(title):
     return True
 
 
+def get_combined_status(pull_request):
+    """
+    A fun hack :/ to get the combined status of a pull request. github3.py doesn't support this atm, so hack it in
+    :param pull_request: github3.py PullRequest obj
+    :return: github3.py CombinedStatus obj
+    """
+    combined_status_url = pull_request.statuses_url.replace('/statuses/', '/status/')
+    json = pull_request._json(pull_request._get(combined_status_url), 200)
+    return pull_request._instance_or_null(repos.status.CombinedStatus, json)
+
+
 def format_pull_requests(pull_requests, owner, repository):
     lines = []
 
     for pull in pull_requests:
         if is_valid_title(pull.title):
             creator = pull.user.login
-            line = '*[{0}/{1}]* <{2}|{3} - by {4}>'.format(
-                owner, repository, pull.html_url, pull.title, creator)
+            combined_status = get_combined_status(pull)
+            if SHOW_BUILD_STATUS and combined_status:
+                build_status = state_to_emoji.get(combined_status.state, " ")
+            else:
+                build_status = ""
+            line = '*{}[{}/{}]* <{}|{} - by {}>'.format(
+                build_status, owner, repository, pull.html_url, pull.title, creator)
             lines.append(line)
 
     return lines
