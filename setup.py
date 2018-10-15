@@ -15,7 +15,7 @@ setup(
     license='MIT',
     install_requires=[
         'requests==2.19.1',
-        'github3.py==1.0.0a4'
+        'github3.py==1.2.0'
     ],
     entry_points='''
         [console_scripts]
