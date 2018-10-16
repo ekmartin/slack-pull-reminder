@@ -15,6 +15,9 @@ REPOSITORIES = [r.lower().strip() for r in repositories.split(',')] if repositor
 usernames = os.environ.get('USERNAMES')
 USERNAMES = [u.lower().strip() for u in usernames.split(',')] if usernames else []
 
+teams = os.environ.get('TEAMS')
+TEAMS = [t.lower().strip() for t in teams.split(',')] if teams else []
+
 SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', '#general')
 
 try:
@@ -30,6 +33,30 @@ Hi! There's a few open pull requests you should take a \
 look at:
 
 """
+
+
+def get_teams(organization, team_names=None):
+    if not team_names:
+        return list(organization.teams())
+    else:
+        _teams = []
+        for team in organization.teams():
+            if team.name.lower() in TEAMS:
+                _teams.append(team)
+        return _teams
+
+
+def get_team_member_usernames(team):
+    return [member.login for member in team.members()]
+
+
+def add_TEAMS_usernames_to_USERNAMES(organization):
+    global USERNAMES
+    _teams = get_teams(organization, TEAMS)
+    _usernames = set(USERNAMES)
+    for team in _teams:
+        _usernames.update(get_team_member_usernames(team))
+    USERNAMES = list(_usernames)
 
 
 def fetch_repository_pulls(repository):
@@ -61,20 +88,21 @@ def format_pull_requests(pull_requests, owner, repository):
 
     return lines
 
+def get_organization(organization_name):
+    client = login(token=GITHUB_API_TOKEN)
+    return client.organization(organization_name)
 
-def fetch_organization_pulls(organization_name):
+
+def fetch_organization_pulls(organization):
     """
     Returns a formatted string list of open pull request messages.
     """
-    client = login(token=GITHUB_API_TOKEN)
-    organization = client.organization(organization_name)
     lines = []
-
     for repository in organization.repositories():
         if REPOSITORIES and repository.name.lower() not in REPOSITORIES:
             continue
         unchecked_pulls = fetch_repository_pulls(repository)
-        lines += format_pull_requests(unchecked_pulls, organization_name,
+        lines += format_pull_requests(unchecked_pulls, organization.login,
                                       repository.name)
 
     return lines
@@ -96,7 +124,9 @@ def send_to_slack(text):
 
 
 def cli():
-    lines = fetch_organization_pulls(ORGANIZATION)
+    org = get_organization(ORGANIZATION)
+    add_TEAMS_usernames_to_USERNAMES(org)
+    lines = fetch_organization_pulls(org)
     if lines:
         text = INITIAL_MESSAGE + '\n'.join(lines)
         send_to_slack(text)
