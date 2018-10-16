@@ -36,10 +36,19 @@ Optional
    If specified, other repositories in this orgainization will be
    ignored. If not specified, all repositories will be checked.
 
+-  ``TEAMS``: A comma-separated list of
+   `github team <https://github.com/orgs/ORGANIZATION/teams/>`_ names to
+   filter Pull Requests by e.g. 'Web Team, Mobile Team'. If specified,
+   teams not in this list will be ignored. If not specified, all Pull
+   Requests by all teams in the organization will be included. Users
+   specified in USERNAMES will also be included
+
 -  ``USERNAMES``: A comma-separated list of github usernames names to
    filter Pull Requests by. If specified, users not in this list will be
    ignored. If not specified, all Pull Requests by all users in the
-   organization will be included.
+   organization will be included. Users in teams specified in TEAMS will
+   also be included. This is a good way to add a user who's PR should be
+   included but is not in a specified team.
 
 -  ``SLACK_CHANNEL``: The Slack channel you want the reminders to be
    posted in, defaults to #general.
@@ -62,6 +71,10 @@ Example that runs slack-pull-reminder every day at 10:00:
 .. code:: bash
 
     0 10 * * * ORGANIZATION="orgname" SLACK_API_TOKEN="token" GITHUB_API_TOKEN="token" slack-pull-reminder
+
+If you have multiple teams with separate slack channels you can create a cron job for
+each channel and filter the users, teams or repositories to check for each using the
+optional variables above
 
 License
 -------
