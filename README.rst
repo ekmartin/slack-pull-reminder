@@ -39,6 +39,25 @@ Optional
 -  ``SLACK_CHANNEL``: The Slack channel you want the reminders to be
    posted in, defaults to #general.
 
+-  ``SHOW_BUILD_STATUS``: If True, will show pull request status icons in
+   the slack message. Defaults to True.
+
+-  ``SUCCESS_EMOJI``: Slack emoji name to show for pull requests with the
+   'success' status. Defaults to '✓'. Can be a slack emoji string like
+   ':white_check_mark:'
+
+-  ``PENDING_EMOJI``: Slack emoji name to show for pull requests with the
+   'pending' status. Defaults to ':large_orange_diamond:'. Can be a slack
+   emoji string like ':large_orange_diamond:'
+
+-  ``FAILURE_EMOJI``: Slack emoji name to show for pull requests with the
+   'failure' status. Defaults to ':x:'.Can be a slack emoji string like
+   ':x:'
+
+Its recommended to set up custom slack emoji such as the ones `here
+<https://github.com/markddavidoff/icons/tree/master/build_status/>`_ as
+the ones that come with slack and unicode ones are not very pretty.
+
 Example
 ~~~~~~~
 

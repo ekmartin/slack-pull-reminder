@@ -18,9 +18,9 @@ USERNAMES = [u.lower().strip() for u in usernames.split(',')] if usernames else 
 SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', '#general')
 
 SHOW_BUILD_STATUS = os.environ.get('SHOW_BUILD_STATUS', True)
-SUCCESS_EMOJI = os.environ.get('SUCCESS_EMOJI', ':white_check_mark:')
-PENDING_EMOJI = os.environ.get('PENDING_EMOJI', ':large_orange_diamond:')
-FAILURE_EMOJI = os.environ.get('FAILURE_EMOJI', ':x:')
+SUCCESS_EMOJI = os.environ.get('SUCCESS_EMOJI', u'✓')
+PENDING_EMOJI = os.environ.get('PENDING_EMOJI', u'⟳')
+FAILURE_EMOJI = os.environ.get('FAILURE_EMOJI', u'⨉')
 
 state_to_emoji = {
     'success': SUCCESS_EMOJI,
