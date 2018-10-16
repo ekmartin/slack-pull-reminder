@@ -33,8 +33,13 @@ Optional
    pull request to be ignored.
    
 -  ``REPOSITORIES``: A comma-separated list of repository names to check.
-   If specified, other repositories in this orgainization will be 
+   If specified, other repositories in this orgainization will be
    ignored. If not specified, all repositories will be checked.
+
+-  ``USERNAMES``: A comma-separated list of github usernames names to
+   filter Pull Requests by. If specified, users not in this list will be
+   ignored. If not specified, all Pull Requests by all users in the
+   organization will be included.
 
 -  ``SLACK_CHANNEL``: The Slack channel you want the reminders to be
    posted in, defaults to #general.
