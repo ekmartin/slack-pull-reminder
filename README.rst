@@ -29,19 +29,13 @@ Required
 Optional
 ~~~~~~~~
 
--  ``IGNORE_WORDS``: A comma-separated list of words that will cause a
-   pull request to be ignored.
-   
--  ``REPOSITORIES``: A comma-separated list of repository names to check,
-    where all other repositories in the organization are ignored.
-    All repositories are checked by default.
+-  ``IGNORE_WORDS``: A comma-separated list of words that will cause a pull request to be ignored.
 
--  ``USERNAMES``: A comma-separated list of GitHub usernames to
-   filter pull requests by, where all other users are ignored.
-   All users in the organization are included by default.
+-  ``REPOSITORIES``: A comma-separated list of repository names to check, where all other repositories in the organization are ignored. All repositories are checked by default.
 
--  ``SLACK_CHANNEL``: The Slack channel you want the reminders to be
-   posted in, defaults to #general.
+-  ``USERNAMES``: A comma-separated list of GitHub usernames to filter pull requests by, where all other users are ignored. All users in the organization are included by default.
+
+-  ``SLACK_CHANNEL``: The Slack channel you want the reminders to be posted in, defaults to #general.
 
 Example
 ~~~~~~~
