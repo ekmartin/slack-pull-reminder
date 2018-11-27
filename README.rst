@@ -29,15 +29,13 @@ Required
 Optional
 ~~~~~~~~
 
--  ``IGNORE_WORDS``: A comma-separated list of words that will cause a
-   pull request to be ignored.
-   
--  ``REPOSITORIES``: A comma-separated list of repository names to check.
-   If specified, other repositories in this orgainization will be 
-   ignored. If not specified, all repositories will be checked.
+-  ``IGNORE_WORDS``: A comma-separated list of words that will cause a pull request to be ignored.
 
--  ``SLACK_CHANNEL``: The Slack channel you want the reminders to be
-   posted in, defaults to #general.
+-  ``REPOSITORIES``: A comma-separated list of repository names to check, where all other repositories in the organization are ignored. All repositories are checked by default.
+
+-  ``USERNAMES``: A comma-separated list of GitHub usernames to filter pull requests by, where all other users are ignored. All users in the organization are included by default.
+
+-  ``SLACK_CHANNEL``: The Slack channel you want the reminders to be posted in, defaults to #general.
 
 -  ``SHOW_BUILD_STATUS``: If True, will show pull request status icons in
    the slack message. Defaults to True.
