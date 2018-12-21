@@ -4,7 +4,7 @@ import logging
 
 import requests
 from github3 import login
-from lib.tools import is_valid_pull, fetch_repository_pulls, get_review_contribution_section, get_open_pulls_section
+from helpers.tools import is_valid_pull, fetch_repository_pulls, get_review_contribution_section, get_open_pulls_section
 
 POST_URL = 'https://slack.com/api/chat.postMessage'
 
