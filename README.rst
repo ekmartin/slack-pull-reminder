@@ -1,22 +1,23 @@
-slack-pull-reminder
+pr-reminder
 ===================
 
     Posts a Slack reminder with a list of open pull requests for an
     organization.
 
-.. figure:: http://i.imgur.com/3xsfTYV.png
+.. figure:: https://cdn-std.dprcdn.net/files/acc_2890/H5skwX
 
 Installation
 ------------
 
 .. code:: bash
 
-    $ pip install slack-pull-reminder
+    # for development
+    $ pip install -e .
 
 Usage
 -----
 
-slack-pull-reminder is configured using environment variables:
+pr-reminder is configured using environment variables:
 
 Required
 ~~~~~~~~
@@ -49,14 +50,14 @@ Example
 Cronjob
 ~~~~~~~
 
-As slack-pull-reminder only runs once and exits, it's recommended to run
+As pr-reminder only runs once and exits, it's recommended to run
 it regularly using for example a cronjob.
 
 Example that runs slack-pull-reminder every day at 10:00:
 
 .. code:: bash
 
-    0 10 * * * ORGANIZATION="orgname" SLACK_API_TOKEN="token" GITHUB_API_TOKEN="token" slack-pull-reminder
+    0 10 * * * ORGANIZATION="orgname" SLACK_API_TOKEN="token" GITHUB_API_TOKEN="token" pr-reminder
 
 License
 -------

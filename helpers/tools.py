@@ -85,7 +85,7 @@ def contains_ignore_word(title):
     return False
 
 def get_open_pulls_section(pulls):
-    section_head = '\n ======================\n    Open PRs _*{0}*_\n======================\n\n'.format(len(pulls))
+    section_head = ' \n\n======================\n    Open PRs _*{0}*_\n======================\n\n'.format(len(pulls))
     lines = []
 
     for pull in pulls:
