@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 from datetime import datetime, timedelta
+from emojis import get_random_emoji
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,27 @@ def contains_ignore_word(title):
             return True
 
     return False
+def get_requested_reviewers(pull):
+    requested_reviewers = []
+
+    if pull.requested_reviewers:
+        requested_reviewers = map(lambda reviewer: reviewer.get('login'), pull.requested_reviewers)
+
+    return requested_reviewers
+
+def get_reviwer_debt(pulls):
+    reviewers = {}
+    for pull in pulls:
+        pull_id = pull.number
+        pull_requested_reviewers = get_requested_reviewers(pull)
+
+        for reviewer in pull_requested_reviewers:
+            if reviewers.get(reviewer):
+                reviewers[reviewer].append(pull_id)
+            else:
+                reviewers[reviewer] = [pull_id]
+    
+    return reviewers
 
 def get_open_pulls_section(pulls):
     section_head = ' \n\n======================\n    Open PRs _*{0}*_\n======================\n\n'.format(len(pulls))
@@ -95,7 +117,6 @@ def get_open_pulls_section(pulls):
         pull_age = (datetime.utcnow() - created_at.replace(tzinfo=None)).days
         requested_reviewers_string = ''
         if pull.requested_reviewers:
-            logger.info(pull.requested_reviewers[0])
             requested_reviewers = map(lambda reviewer: '@' + reviewer.get('login'), pull.requested_reviewers)
             requested_reviewers_string = ', '.join(requested_reviewers)
         
@@ -114,9 +135,6 @@ def get_review_contribution_section(pulls, days = 1):
     lines = []
     authors = get_pull_reviewers_days_ago(pulls, days)
     sorted_authors = sorted(authors, key=lambda author: len(authors[author]),  reverse=True)
-    logger.info(authors)
-    logger.info(sorted_authors)
-
 
     for index, author in enumerate(sorted_authors):
         logger.info('author: %s comments: %s', author, authors[author])
@@ -130,3 +148,22 @@ def get_review_contribution_section(pulls, days = 1):
     
     return section_head + '\n'.join(lines) + '\n============\n'
 
+def get_reviewers_debt_section(pulls):
+    section_head = '\n ======================\n    CR debt\n======================\n\n'
+    lines = []
+
+    reviewers_debt = get_reviwer_debt(pulls)
+    sorted_reviewers_debt = sorted(reviewers_debt, key=lambda reviewer: len(reviewers_debt[reviewer]),  reverse=True)
+
+    for index, requested_reviewer in enumerate(sorted_reviewers_debt):
+        debt = reviewers_debt[requested_reviewer]
+        logger.info('reviewer: %s debt: %s', requested_reviewer, len(debt))
+
+        if index == 0:
+            line = ':bell:: :scream:*{0}*:scream: has _{1}_ pending PRs to approve\n'
+        else:
+            line = get_random_emoji() + ': *{0}* has _{1}_ pending PRs to approve'
+
+        lines.append(line.format(requested_reviewer, len(debt)))
+    
+    return section_head + '\n'.join(lines) + '\n============\n'

@@ -4,7 +4,13 @@ import logging
 
 import requests
 from github3 import login
-from helpers.tools import is_valid_pull, fetch_repository_pulls, get_review_contribution_section, get_open_pulls_section
+from helpers.tools import (
+    is_valid_pull,
+    fetch_repository_pulls,
+    get_review_contribution_section,
+    get_open_pulls_section,
+    get_reviewers_debt_section, 
+)
 
 POST_URL = 'https://slack.com/api/chat.postMessage'
 
@@ -77,6 +83,7 @@ def get_bot_message():
 
     lines.append(get_open_pulls_section(pulls))
     lines.append(get_review_contribution_section(pulls, 7))
+    lines.append(get_reviewers_debt_section(pulls))
 
     return '\n'.join(lines)
 
