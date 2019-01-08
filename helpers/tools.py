@@ -1,10 +1,8 @@
 import os
 import sys
-import logging
+from logger import logger
 from datetime import datetime, timedelta
 from emojis import get_random_emoji
-
-logger = logging.getLogger(__name__)
 
 ignoreWords = os.environ.get('IGNORE_WORDS')
 IGNORE_WORDS = [i.lower().strip() for i in ignoreWords.split(',')] if ignoreWords else []

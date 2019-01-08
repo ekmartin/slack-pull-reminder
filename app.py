@@ -1,5 +1,7 @@
 from flask import Flask, request, make_response, render_template
 from helpers.bot import SlackBot
+from helpers.logger import logger, pp
+from helpers.gh_events import gh_event_handler
 
 app = Flask('pr-reminder')
 slackBot = SlackBot()
@@ -8,7 +10,7 @@ slackBot = SlackBot()
 def hello():
     return 'Hello World!'
 
-@app.route('/install', methods=['GET'])
+@app.route('/slack/install', methods=['GET'])
 def pre_install():
     """
     This route renders the installation page with 'Add to Slack' button.
@@ -22,7 +24,7 @@ def pre_install():
     return render_template("install.html", client_id=client_id, scope=scope)
 
 
-@app.route("/thanks", methods=["GET", "POST"])
+@app.route("/slack/thanks", methods=["GET", "POST"])
 def thanks():
     """
     This route is called by Slack after the user installs our app. It will
@@ -37,6 +39,23 @@ def thanks():
     # The bot's auth method to handles exchanging the code for an OAuth token
     slackBot.auth(temp_auth_code)
     return render_template('thanks.html')
+
+@app.route('/gh/events', methods=['POST'])
+def gh_events():
+    """
+    This route is called by github for events notifying
+    """
+    gh_event_handler(request.json)
+
+    return 'I am listening.'
+
+@app.route('/gh/auth/callback', methods=['GET'])
+def gh_auth_callback():
+    """
+    This route is used as `User authorization callback URL`
+    """
+    return 'Welcome to auth callback'
+
 
 if __name__ == "__main__":
     app.run()
