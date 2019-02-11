@@ -14,8 +14,8 @@ setup(
     py_modules=['slack_pull_reminder'],
     license='MIT',
     install_requires=[
-        'requests==2.20.1',
-        'github3.py==1.0.0a4'
+        'requests==2.21.0',
+        'github3.py==1.2.0'
     ],
     entry_points='''
         [console_scripts]

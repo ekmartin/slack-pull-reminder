@@ -1,5 +1,7 @@
 import os
 import sys
+from collections import defaultdict
+from datetime import datetime, timezone, timedelta
 
 import requests
 from github3 import login
@@ -34,7 +36,8 @@ look at:
 
 def fetch_repository_pulls(repository):
     pulls = []
-    for pull in repository.pull_requests():
+    for short_pull in repository.pull_requests():
+        pull = repository.pull_request(short_pull.number)
         if pull.state == 'open' and (not USERNAMES or pull.user.login.lower() in USERNAMES):
             pulls.append(pull)
     return pulls
@@ -49,14 +52,52 @@ def is_valid_title(title):
     return True
 
 
+def get_age(pull):
+    td = datetime.now(timezone.utc) - pull.updated_at
+    hours, _ = divmod(int(td.total_seconds()), 3600)
+    return hours
+
+
+def get_review_statuses(pull):
+    dict = defaultdict(set)
+
+    for review in pull.reviews():
+        if review.state == 'APPROVED':
+            state = ':white_check_mark:'
+        elif review.state == 'CHANGES_REQUESTED':
+            state = ':o:'
+        else:
+            continue
+            
+        dict[state].add('@{0}'.format(review.user.login))
+    
+    if dict:
+        line = 'Reviews: ' + ' '.join(['{0} by {1}'.format(key, ', '.join(value)) for (key, value) in dict.items()])
+    else:
+        line = 'No reviews :warning:'
+        
+    return line
+
+
+def is_mergeable(pull):
+    line = ':-1:'
+    if pull.mergeable:
+        line = ':+1:'
+
+    return line
+
+
 def format_pull_requests(pull_requests, owner, repository):
     lines = []
 
     for pull in pull_requests:
         if is_valid_title(pull.title):
             creator = pull.user.login
-            line = '*[{0}/{1}]* <{2}|{3} - by {4}>'.format(
-                owner, repository, pull.html_url, pull.title, creator)
+            review_statuses = get_review_statuses(pull)
+            mergeable = is_mergeable(pull)
+            age = get_age(pull)
+            line = '*[{0}/{1}]* <{2}|{3}> by @{4} • Updated {5}h ago • {6} • Mergeable: {7}'.format(
+                owner, repository, pull.html_url, pull.title, creator, age, review_statuses, mergeable)
             lines.append(line)
 
     return lines
