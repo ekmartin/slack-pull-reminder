@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.2] - 2016-04-04
 ### Added
-- add initial version [ekmartin]
+- add initial version from [@ekmartin](https://github.com/ekmartin)
 
 [Unreleased]: https://github.com/ekmartin/slack-pull-reminder/compare/v1.0.0...HEAD
 [0.1.2]: https://github.com/ekmartin/slack-pull-reminder/compare/7860f4019c7e3c97cda1b87938e550790a611056...v0.1.2
