@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- 2019-02-23 add changelog [@markddavidoff] (https://github.com/markddavidoff)
-- 2018-11-07 add usernames filter from [@markddavidoff] (https://github.com/markddavidoff)
+- 2019-02-23 add changelog [@markddavidoff](https://github.com/markddavidoff)
+- 2018-11-07 add usernames filter from [@markddavidoff](https://github.com/markddavidoff)
 - 2018-10-15 add repositories filter from [@markddavidoff](https://github.com/markddavidoff)
 
 ## [0.1.2] - 2016-04-04
