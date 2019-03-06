@@ -9,6 +9,9 @@ POST_URL = 'https://slack.com/api/chat.postMessage'
 ignore = os.environ.get('IGNORE_WORDS')
 IGNORE_WORDS = [i.lower().strip() for i in ignore.split(',')] if ignore else []
 
+filter_labels = os.environ.get('FILTER_LABELS')
+FILTER_LABELS = [i.lower().strip() for i in filter_labels.split(',')] if filter_labels else []
+
 repositories = os.environ.get('REPOSITORIES')
 REPOSITORIES = [r.lower().strip() for r in repositories.split(',')] if repositories else []
 
@@ -48,12 +51,23 @@ def is_valid_title(title):
 
     return True
 
+def is_valid_labels(labels):
+    if not FILTER_LABELS:
+        return True
+
+    for label in labels:
+        lowercase_label = label['name'].lower()
+        for filtered_label in FILTER_LABELS:
+            if filtered_label in lowercase_label:
+                return True
+
+    return False
 
 def format_pull_requests(pull_requests, owner, repository):
     lines = []
 
     for pull in pull_requests:
-        if is_valid_title(pull.title):
+        if is_valid_title(pull.title) and is_valid_labels(pull.labels):
             creator = pull.user.login
             line = '*[{0}/{1}]* <{2}|{3} - by {4}>'.format(
                 owner, repository, pull.html_url, pull.title, creator)
