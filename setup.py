@@ -13,7 +13,7 @@ setup(
     long_description=readme,
     py_modules=["slack_pull_reminder"],
     license="MIT",
-    install_requires=["requests==2.21.0", "github3.py==1.0.0a4"],
+    install_requires=["requests==2.21.0", "github3.py==1.3.0"],
     entry_points="""
         [console_scripts]
         slack-pull-reminder=slack_pull_reminder:cli
