@@ -43,7 +43,7 @@ class Config:
             self.GITHUB_API_TOKEN = os.environ["GITHUB_API_TOKEN"]
             self.GITHUB_ORGANIZATION = os.environ["GITHUB_ORGANIZATION"]
         except KeyError as error:
-            raise ConfigError(f"please set the environment variable {error}")
+            raise ConfigError("please set the environment variable %s", str(error))
 
         ignore = os.environ.get("IGNORE_WORDS")
         self.IGNORE_WORDS = (
