@@ -1,7 +1,7 @@
 import os
 import logging
 import itertools
-from pprint import pformat, pprint
+from pprint import pformat
 from collections import namedtuple
 
 import requests
@@ -17,7 +17,7 @@ class ConfigError(Exception):
 
 class Config:
     def __init__(self):
-        # self._load_slack_configs()
+        self._load_slack_configs()
         self._load_github_configs()
         self.LOGLEVEL = os.environ.get("LOGLEVEL", logging.INFO)
 
@@ -61,7 +61,7 @@ class Config:
 
 
 PullRequest = namedtuple(
-    "PullRequest", "repository_name creator url title has_valid_title pull_requests"
+    "PullRequest", "repository_name creator url title pull_requests"
 )
 
 
@@ -84,27 +84,25 @@ class GitHubDataProvider:
         )
 
         organization_repositories = list(organization.repositories())
-        logger.info(
+        logger.debug(
             "organization repositories:\n%s",
             self._get_repo_names(organization_repositories),
         )
 
-        open_prs_nested = [
-            self._fetch_repository_pulls(repository)
-            for repository in organization_repositories
-            if self._is_required_fetch(repository)
+        required_fetch_open_pr = filter(
+            self._is_required_fetch, organization_repositories
+        )
+
+        open_prs = [
+            pull
+            for repository in required_fetch_open_pr
+            for pull in self._fetch_repository_pulls(repository)
         ]
-        flatten = lambda l: [item for sublist in l for item in sublist]
-        open_prs = flatten(open_prs_nested)
         logger.info(
             "required fetches PRs:\n%s", pformat(self._get_prs_titles(open_prs))
         )
 
-        return [
-            self._format_pull_request(pr, owner=self._config.GITHUB_ORGANIZATION)
-            for pr in open_prs
-            if pr.has_valid_title
-        ]
+        return open_prs
 
     def _is_required_fetch(self, repository):
         return repository.name.lower() in self._config.REPOSITORIES
@@ -117,7 +115,6 @@ class GitHubDataProvider:
                     creator=pull.user.login,
                     url=pull.html_url,
                     title=pull.title,
-                    has_valid_title=self._is_valid_title(pull.title),
                     pull_requests=None,  # pull,
                 )
                 for pull in open_pull_requests
@@ -145,6 +142,24 @@ class GitHubDataProvider:
             ]
         )
 
+    def _get_repo_names(self, repos):
+        return [repo.name for repo in repos]
+
+    def _get_prs_titles(self, pull_requests):
+        return [pull.title for pull in pull_requests]
+
+
+class Formater:
+    def __init__(self, config):
+        self._config = config
+
+    def format_message_lines(self, open_prs):
+        return [
+            self._format_pull_request(pull, owner=self._config.GITHUB_ORGANIZATION)
+            for pull in open_prs
+            if self._is_valid_title(pull.title)
+        ]
+
     def _format_pull_request(self, pull, owner=""):
         return f"*[{owner}/{pull.repository_name}]* <{pull.url}|{pull.title} - by {pull.creator}>"
 
@@ -156,11 +171,9 @@ class GitHubDataProvider:
 
         return True
 
-    def _get_repo_names(self, repos):
-        return [repo.name for repo in repos]
 
-    def _get_prs_titles(self, pull_requests):
-        return [pull.title for pull in pull_requests]
+class SlackError(Exception):
+    """generic error for slack"""
 
 
 class Slack:
@@ -175,11 +188,12 @@ class Slack:
             "icon_emoji": ":bell:",
             "text": text,
         }
+        logger.debug("slack payload: %s", payload)
 
-        response = requests.post(self._config.SLACK_POST_URL, data=payload)
-        answer = response.json()
-        if not answer["ok"]:
-            raise Exception(answer["error"])
+        # response = requests.post(self._config.SLACK_POST_URL, data=payload)
+        # answer = response.json()
+        # if not answer["ok"]:
+        #     raise SlackError(answer["error"])
 
 
 def cli():
@@ -187,12 +201,14 @@ def cli():
     logger.setLevel(config.LOGLEVEL)
     github = GitHubDataProvider(config)
     slack = Slack(config)
+    formater = Formater(config)
 
-    lines = github.fetch_organization_pulls()
-    logger.info("organization pulls: %s", pformat(lines))
-    # if lines:
-    #     text = config.SLACK_INITIAL_MESSAGE + "\n".join(lines)
-    #     slack.send(text)
+    lines = formater.format_message_lines(github.fetch_organization_pulls())
+
+    if lines:
+        text = config.SLACK_INITIAL_MESSAGE + "\n".join(lines)
+        logger.info("sending slack message:\n%s", text)
+        slack.send(text)
 
 
 if __name__ == "__main__":
@@ -201,4 +217,3 @@ if __name__ == "__main__":
     except ConfigError as err:
         logger.error(err)
         exit(1)
-
