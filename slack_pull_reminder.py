@@ -1,6 +1,5 @@
 import os
 import logging
-import itertools
 from pprint import pformat
 from collections import namedtuple
 
@@ -22,19 +21,21 @@ class Config:
         self.LOGLEVEL = os.environ.get("LOGLEVEL", logging.INFO)
 
     def _load_slack_configs(self):
-        # required fields
-        try:
-            self.SLACK_API_TOKEN = os.environ["SLACK_API_TOKEN"]
-        except KeyError as error:
-            raise ConfigError(f"please set the environment variable {error}")
-
+        self.SLACK_API_TOKEN = os.environ.get("SLACK_API_TOKEN", "")
         self.SLACK_POST_URL = "https://slack.com/api/chat.postMessage"
         self.SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL", "#general")
         self.SLACK_INITIAL_MESSAGE = """\
         Hi! There's a few open pull requests you should take a \
         look at:
 
-        """
+"""
+
+    def is_slack_configured(self):
+        return (
+            self.SLACK_API_TOKEN != ""
+            and self.SLACK_POST_URL != ""
+            and self.SLACK_CHANNEL != ""
+        )
 
     def _load_github_configs(self):
         # required fields
@@ -115,7 +116,7 @@ class GitHubDataProvider:
                     creator=pull.user.login,
                     url=pull.html_url,
                     title=pull.title,
-                    pull_requests=None,  # pull,
+                    pull_requests=None,
                 )
                 for pull in open_pull_requests
             ]
@@ -125,7 +126,7 @@ class GitHubDataProvider:
         ]
 
         logger.info(
-            "%s open pull requests:\n%s",
+            "`%s` open pull requests:\n%s",
             repository.name,
             pformat(self._get_prs_titles(open_pull_requests)),
         )
@@ -189,11 +190,12 @@ class Slack:
             "text": text,
         }
         logger.debug("slack payload: %s", payload)
+        logger.info("sending slack message")
 
-        # response = requests.post(self._config.SLACK_POST_URL, data=payload)
-        # answer = response.json()
-        # if not answer["ok"]:
-        #     raise SlackError(answer["error"])
+        response = requests.post(self._config.SLACK_POST_URL, data=payload)
+        answer = response.json()
+        if not answer["ok"]:
+            raise SlackError(answer["error"])
 
 
 def cli():
@@ -205,10 +207,16 @@ def cli():
 
     lines = formater.format_message_lines(github.fetch_organization_pulls())
 
-    if lines:
-        text = config.SLACK_INITIAL_MESSAGE + "\n".join(lines)
-        logger.info("sending slack message:\n%s", text)
+    if not lines:
+        return
+
+    text = config.SLACK_INITIAL_MESSAGE + "\n".join(lines)
+    logger.info("slack message:\n%s", text)
+
+    if config.is_slack_configured():
         slack.send(text)
+    else:
+        logger.warning("slack is not configured, message not sent")
 
 
 if __name__ == "__main__":
