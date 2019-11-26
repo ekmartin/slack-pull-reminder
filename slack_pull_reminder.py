@@ -29,17 +29,10 @@ class Config:
         self.SLACK_POST_URL = "https://slack.com/api/chat.postMessage"
         self.SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL", "#general")
         self.SLACK_INITIAL_MESSAGE = """\
-        Hi! There's a few open pull requests you should take a \
-        look at:
+Hi! There's a few open pull requests you should take a
+look at:
 
 """
-
-    def is_slack_configured(self):
-        return (
-            self.SLACK_API_TOKEN != ""
-            and self.SLACK_POST_URL != ""
-            and self.SLACK_CHANNEL != ""
-        )
 
     def _load_github_configs(self):
         # required fields
@@ -66,6 +59,16 @@ class Config:
         self.USERNAMES = (
             [u.lower().strip() for u in usernames.split(",")] if usernames else []
         )
+
+    def is_slack_configured(self):
+        return (
+            self.SLACK_API_TOKEN != ""
+            and self.SLACK_POST_URL != ""
+            and self.SLACK_CHANNEL != ""
+        )
+
+    def is_slack_text_output_configured(self):
+        return True
 
     def is_stdout_configured(self):
         return True
@@ -224,10 +227,12 @@ class Slack:
     def __init__(self, config):
         self._config = config
 
-    def send(self, pull_requests):
+    def get_message_text(self, pull_requests):
         lines = self.format_message_lines(pull_requests)
+        return self._config.SLACK_INITIAL_MESSAGE + "\n".join(lines)
 
-        text = self._config.SLACK_INITIAL_MESSAGE + "\n".join(lines)
+    def send(self, pull_requests):
+        text = self.get_message_text(pull_requests)
         logger.info("slack message:\n%s", text)
 
         payload = {
@@ -305,6 +310,9 @@ def main():
 
     if config.is_stdout_configured():
         stdout_print.send(pull_requests_filtered)
+
+    if config.is_slack_text_output_configured():
+        print(slack.get_message_text(pull_requests_filtered))
 
     if config.is_slack_configured():
         slack.send(pull_requests_filtered)
